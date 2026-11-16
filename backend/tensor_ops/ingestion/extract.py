@@ -3,10 +3,14 @@ from __future__ import annotations
 
 import json
 import os
-import resource
 import subprocess
 import sys
 from dataclasses import dataclass
+
+try:
+    import resource
+except ImportError:
+    resource = None
 
 from ..config import get_settings
 
@@ -25,6 +29,8 @@ class Chunk:
 
 
 def _limits(mem_mb: int, cpu_s: int):  # type: ignore[no-untyped-def]
+    if resource is None:
+        return None
     def apply() -> None:
         resource.setrlimit(resource.RLIMIT_AS, (mem_mb * 1024 * 1024, mem_mb * 1024 * 1024))
         resource.setrlimit(resource.RLIMIT_CPU, (cpu_s, cpu_s))
@@ -36,13 +42,14 @@ def _limits(mem_mb: int, cpu_s: int):  # type: ignore[no-untyped-def]
 def run_extraction(path: str, kind: str) -> dict:
     s = get_settings()
     child = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extract_child.py")
-    env = {"PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1"}
+    env = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "PYTHONDONTWRITEBYTECODE": "1"}
     try:
         # Isolated interpreter (-I): no user site, no env-driven imports, script dir not on sys.path.
+        preexec = _limits(s.extract_memory_mb, s.extract_timeout_s) if os.name != "nt" else None
         proc = subprocess.run(  # noqa: S603 - fixed argv, no shell
             [sys.executable, "-I", child, path, kind],
-            capture_output=True, timeout=s.extract_timeout_s, env=env, cwd="/",
-            preexec_fn=_limits(s.extract_memory_mb, s.extract_timeout_s),
+            capture_output=True, timeout=s.extract_timeout_s, env=env, cwd=os.getcwd() if os.name == "nt" else "/",
+            preexec_fn=preexec,
         )
     except subprocess.TimeoutExpired as e:
         raise ExtractionError("parser timeout") from e
