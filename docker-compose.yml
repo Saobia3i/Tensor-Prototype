@@ -1,0 +1,46 @@
+# Local development stack (synthetic data only). Not a production deployment.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: tensor_owner
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: tensor
+    volumes: ["pgdata:/var/lib/postgresql/data", "./deploy/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql:ro"]
+    healthcheck: { test: ["CMD", "pg_isready", "-U", "tensor_owner"], interval: 5s, retries: 10 }
+  clamav:
+    image: clamav/clamav:1.4
+    healthcheck: { test: ["CMD", "clamdcheck.sh"], interval: 30s, retries: 20 }
+  migrate:
+    build: .
+    command: sh -c "alembic upgrade head && python -m tensor_ops.seed --demo"
+    environment: &env
+      TENSOR_ENV: local
+      TENSOR_DATABASE_URL: postgresql+psycopg://tensor_app:devpass@db/tensor
+      TENSOR_ADMIN_DATABASE_URL: postgresql+psycopg://tensor_owner:devpass@db/tensor
+      TENSOR_STORAGE_DIR: /app/var/objects
+      TENSOR_SCANNER: clamav
+      TENSOR_CLAMD_HOST: clamav
+      TENSOR_AI_PROVIDER: ${TENSOR_AI_PROVIDER:-mock}
+      TENSOR_ANTHROPIC_API_KEY: ${TENSOR_ANTHROPIC_API_KEY:-}
+    volumes: ["objects:/app/var/objects"]
+    depends_on: { db: { condition: service_healthy } }
+  api:
+    build: .
+    environment: *env
+    ports: ["8000:8000"]
+    volumes: ["objects:/app/var/objects"]
+    depends_on: { migrate: { condition: service_completed_successfully } }
+  worker-ingest:
+    build: .
+    command: python -m tensor_ops.jobs.worker --kinds ingest_evidence,execute_deletion,retention_sweep
+    environment: *env
+    volumes: ["objects:/app/var/objects"]
+    depends_on: { migrate: { condition: service_completed_successfully }, clamav: { condition: service_healthy } }
+  worker-ai:
+    build: .
+    command: python -m tensor_ops.jobs.worker --kinds ai_review_evidence,ai_answer_questionnaire_item,connector_sync
+    environment: *env
+    volumes: ["objects:/app/var/objects"]
+    depends_on: { migrate: { condition: service_completed_successfully } }
+volumes: { pgdata: {}, objects: {} }

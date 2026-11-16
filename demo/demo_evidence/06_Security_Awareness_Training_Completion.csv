@@ -1,0 +1,9 @@
+employee,department,course,completed_on,score,phishing_simulation
+A. Rahman,Eng,Security Awareness Training 2026,2026-03-10,85,passed
+B. Silva,Eng,Security Awareness Training 2026,2026-04-11,86,passed
+C. Wong,Sales,Security Awareness Training 2026,2026-05-12,87,passed
+D. Moore,Exec,Security Awareness Training 2026,2026-06-13,88,passed
+E. Khan,Support,Security Awareness Training 2026,2026-07-14,89,clicked
+F. Ortiz,Eng,Security Awareness Training 2026,2026-08-15,90,passed
+G. Ali,Finance,Security Awareness Training 2026,2026-03-16,91,passed
+SUMMARY,,Annual security awareness training completion,38 of 40 staff completed,,phishing click rate 4%

@@ -1,0 +1,71 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_USER: tensor_owner, POSTGRES_PASSWORD: devpass, POSTGRES_DB: tensor_test }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U tensor_owner" --health-interval 5s --health-retries 10
+    env:
+      TENSOR_ENV: test
+      TENSOR_DATABASE_URL: postgresql+psycopg://tensor_app:devpass@localhost/tensor_test
+      TENSOR_ADMIN_DATABASE_URL: postgresql+psycopg://tensor_owner:devpass@localhost/tensor_test
+    defaults: { run: { working-directory: backend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.13" }
+      - run: pip install -r requirements-dev.txt
+      - name: Create non-owner app role (RLS applies to it)
+        run: PGPASSWORD=devpass psql -h localhost -U tensor_owner -d tensor_test -c "CREATE ROLE tensor_app LOGIN PASSWORD 'devpass'"
+      - name: Lint
+        run: ruff check .
+      - name: SAST (bandit)
+        run: bandit -q -r tensor_ops -c pyproject.toml -ll
+      - name: Dependency audit
+        run: pip-audit -r requirements.lock
+      - name: Migrations apply cleanly
+        run: alembic upgrade head && alembic downgrade base && alembic upgrade head
+      - name: Tests (unit, integration, tenant isolation, prompt injection, AI eval safety gate)
+        run: pytest tests -q
+      - name: Held-out AI evaluation report
+        run: python -m evals.run_evals --split heldout
+      - uses: actions/upload-artifact@v4
+        with: { name: eval-results, path: backend/evals/results/ }
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: frontend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npm audit --audit-level=high
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: gitleaks/gitleaks-action@v2
+        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+
+  container:
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t tensor-ops:${{ github.sha }} .
+      - uses: aquasecurity/trivy-action@0.28.0
+        with: { image-ref: "tensor-ops:${{ github.sha }}", severity: "CRITICAL,HIGH", exit-code: "1", ignore-unfixed: true }

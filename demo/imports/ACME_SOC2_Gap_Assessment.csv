@@ -1,0 +1,14 @@
+TSC Ref,Requirement,Status,Control Owner,Risk Rating,Comments
+CC1.4,Hiring and competence,Partial,HR Manager,Medium,Background checks partial
+CC2.2,Internal communication,Yes,Compliance Manager,Low,
+CC3.2,Risk identification,Yes,CTO,High,
+CC6.1,Logical access security,Yes,IT Operations Manager,High,Okta + MFA
+CC6.2,User registration & authorization,Partial,IT Operations Manager,High,Offboarding SLA missed twice
+CC6.6,System boundaries,No,SecOps Lead,High,Security groups too permissive
+CC6.8,Malware prevention,Yes,IT Operations Manager,Medium,CrowdStrike
+CC7.2,Monitoring,No,SecOps Lead,High,No SIEM
+CC7.4,Incident response,Yes,SecOps Lead,High,
+CC8.1,Change management,Yes,Engineering Lead,High,
+CC9.2,Vendor management,Partial,Compliance Manager,Medium,
+A1.2,Backup and recovery,Yes,SRE Lead,Medium,
+C1.2,Disposal of confidential info,No,CTO,Medium,No deletion log

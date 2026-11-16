@@ -1,0 +1,33 @@
+{
+  "source": "GitHub REST API export (synthetic)",
+  "organisation": "acme-analytics",
+  "collected_at": "2026-10-02T10:00:00Z",
+  "two_factor_requirement_enabled": true,
+  "repositories": [
+    {
+      "repository": "api",
+      "default_branch": "main",
+      "branch_protected": true,
+      "required_approving_reviews": 1,
+      "dismiss_stale_reviews": true,
+      "enforce_admins": true
+    },
+    {
+      "repository": "web",
+      "default_branch": "main",
+      "branch_protected": true,
+      "required_approving_reviews": 1,
+      "dismiss_stale_reviews": true,
+      "enforce_admins": true
+    },
+    {
+      "repository": "infra",
+      "default_branch": "main",
+      "branch_protected": true,
+      "required_approving_reviews": 2,
+      "dismiss_stale_reviews": true,
+      "enforce_admins": true
+    }
+  ],
+  "note": "Every change to main requires a pull request with at least one approving review (code review)."
+}

@@ -1,0 +1,9 @@
+AWS Backup configuration export (synthetic)
+RDS cluster acme-prod: automated backups ENABLED, retention 35 days, point-in-time recovery ON.
+S3 bucket acme-prod-uploads: versioning ON, cross-region replication to eu-west-1.
+
+Restore test record
+Date: 2026-08-14
+Performed by: J. Lee (SRE)
+Action: restored RDS snapshot into isolated staging account; verified row counts and application login.
+Result: SUCCESS. Recovery time 42 minutes (RTO target 4 hours). Data loss window 5 minutes (RPO target 24 hours).

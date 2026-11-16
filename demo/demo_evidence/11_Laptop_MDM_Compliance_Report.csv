@@ -1,0 +1,12 @@
+device,owner,os,disk_encryption,screen_lock,edr,os_up_to_date,mdm_enrolled
+ACME-MBP-001,user1,macOS 15,FileVault ON,5 min,CrowdStrike,yes,yes
+ACME-MBP-002,user2,macOS 15,FileVault ON,5 min,CrowdStrike,yes,yes
+ACME-MBP-003,user3,macOS 15,FileVault ON,5 min,CrowdStrike,yes,yes
+ACME-MBP-004,user4,macOS 15,FileVault ON,5 min,CrowdStrike,yes,yes
+ACME-MBP-005,user5,macOS 15,FileVault ON,5 min,CrowdStrike,yes,yes
+ACME-MBP-006,user6,macOS 15,FileVault ON,5 min,CrowdStrike,yes,yes
+ACME-MBP-007,user7,macOS 15,FileVault ON,5 min,CrowdStrike,no (pending update),yes
+ACME-MBP-008,user8,macOS 15,FileVault ON,5 min,CrowdStrike,yes,yes
+ACME-MBP-009,user9,macOS 15,FileVault ON,5 min,CrowdStrike,yes,yes
+ACME-MBP-010,user10,macOS 15,FileVault ON,5 min,CrowdStrike,yes,yes
+SUMMARY,40 devices,,40/40 encrypted,,40/40 EDR,39/40,40/40 MDM

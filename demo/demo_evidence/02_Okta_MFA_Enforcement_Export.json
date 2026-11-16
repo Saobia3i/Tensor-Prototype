@@ -1,0 +1,25 @@
+{
+  "source": "Okta admin export (synthetic)",
+  "exported_at": "2026-10-01T09:12:00Z",
+  "org": "acme-analytics",
+  "global_session_policy": {
+    "name": "Default Policy",
+    "mfa_required": true,
+    "factors": [
+      "okta_verify_push",
+      "webauthn"
+    ],
+    "enforcement": "ENFORCED for all users and admins since 2026-01-15"
+  },
+  "users_total": 42,
+  "users_enrolled_mfa": 42,
+  "admins": 3,
+  "admins_with_phishing_resistant_mfa": 3,
+  "apps_using_sso": [
+    "AWS IAM Identity Center",
+    "GitHub",
+    "Google Workspace",
+    "Linear",
+    "Datadog"
+  ]
+}

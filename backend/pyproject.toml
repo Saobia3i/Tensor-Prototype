@@ -1,0 +1,26 @@
+[project]
+name = "tensor-ops"
+version = "1.0.0"
+description = "Tensor Operations Console: AI-assisted, expert-signed compliance delivery platform"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 140
+target-version = "py312"
+extend-exclude = ["migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "S", "UP"]
+ignore = ["E501", "S101", "B008", "E731", "S608", "B904", "UP017", "S105", "S106"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S", "B", "E501"]
+"evals/*" = ["S"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:warnings"
+
+[tool.bandit]
+exclude_dirs = ["tests", "evals"]
+skips = ["B101", "B608"]
